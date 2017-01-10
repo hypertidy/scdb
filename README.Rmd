@@ -1,0 +1,63 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# scdb
+
+The goal of scdb is to provide a back-end for the sc project. 
+
+This is a general common-form data structure for complex hierarchical data. 
+
+## Installation
+
+You can install scdb from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("mdsumner/scdb")
+```
+
+## Example
+
+This is a basic example which converts a simple features object to a database, then recreates that object
+in a very scaleable, flexible and extensible way. 
+
+```{r example}
+library(scdb)
+data(pholy)
+(pdb <- write_db(hpoly))
+```
+
+Now explore the objects available in the database. 
+
+```{r}
+library(dplyr)
+(obj <- tbl(pdb, "object"))
+
+```
+
+There are three objects, and each has a long ID `object_`, as well as other metadata. 
+
+Using joins we can access the other data in the decomposed tables. 
+
+```{r joins}
+big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "branch_vertex")) %>% inner_join(tbl(pdb, "vertex")))
+big_tab %>% arrange(branch_, order_)
+```
+
+In a real case we would wrap the chained joins within a  list-column in `obj` or similar trick, and use the database more cleverly to only 
+expand out the data we need for each object. But also note there's  no `collect` statement, `big_tab` is still a promise that the database will do the work only when we really need it to. 
+
+For demonstration, show that we can recompose the hierarchical object ...
+
+

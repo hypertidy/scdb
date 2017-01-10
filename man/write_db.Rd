@@ -4,7 +4,7 @@
 \alias{write_db}
 \title{Build database from object.}
 \usage{
-write_db(x, dbfile, layer = NULL, slurp = FALSE, verbose = TRUE)
+write_db(x, dbfile = NULL, layer = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{object}
@@ -15,7 +15,15 @@ write_db(x, dbfile, layer = NULL, slurp = FALSE, verbose = TRUE)
 
 \item{verbose}{chatty mode}
 }
+\value{
+db object
+}
 \description{
 Currently only objects supported by `spbabel::map_table` are supported ....
+}
+\examples{
+## hpoly is an in-built simple features multipolygon layer
+db <- write_db(hpoly)
+db
 }
 
