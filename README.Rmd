@@ -34,7 +34,7 @@ in a very scaleable, flexible and extensible way.
 
 ```{r example}
 library(scdb)
-data(pholy)
+data(hpoly)
 (pdb <- write_db(hpoly))
 ```
 

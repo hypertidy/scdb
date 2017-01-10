@@ -24,12 +24,11 @@ This is a basic example which converts a simple features object to a database, t
 
 ``` r
 library(scdb)
-data(pholy)
-#> Warning in data(pholy): data set 'pholy' not found
+data(hpoly)
 (pdb <- write_db(hpoly))
 #> decomposing object
-#> write tables to database C:\Users\mdsumner\AppData\Local\Temp\RtmpE7CkT9\file14b8199842a2.sqlite
-#> src:  sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpE7CkT9\file14b8199842a2.sqlite]
+#> write tables to database C:\Users\mdsumner\AppData\Local\Temp\RtmpwNASr6\fileb601b0797.sqlite
+#> src:  sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpwNASr6\fileb601b0797.sqlite]
 #> tbls: branch, branch_vertex, object, sqlite_stat1, vertex
 ```
 
@@ -47,13 +46,13 @@ library(dplyr)
 #>     intersect, setdiff, setequal, union
 (obj <- tbl(pdb, "object"))
 #> Source:   query [?? x 3]
-#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpE7CkT9\file14b8199842a2.sqlite]
+#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpwNASr6\fileb601b0797.sqlite]
 #> 
 #>   rownumber_ feature    object_
 #>        <int>   <chr>      <chr>
-#> 1          1    wall lTfMCMoosC
-#> 2          2    roof CbNzDsznEy
-#> 3          3    door l2rMYAyCaP
+#> 1          1    wall lYiqMmNowd
+#> 2          2    roof 3NPAJ1qXX5
+#> 3          3    door kVRn2odXIO
 ```
 
 There are three objects, and each has a long ID `object_`, as well as other metadata.
@@ -67,20 +66,20 @@ big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "bran
 #> Joining, by = "vertex_"
 big_tab %>% arrange(branch_, order_)
 #> Source:   query [?? x 9]
-#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpE7CkT9\file14b8199842a2.sqlite]
+#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\RtmpwNASr6\fileb601b0797.sqlite]
 #> 
 #>    rownumber_ feature    object_ island_ branch_ order_    vertex_    x_
 #>         <int>   <chr>      <chr>   <int>   <int>  <int>      <chr> <dbl>
-#> 1           1    wall lTfMCMoosC       1       1      6 BnuPwFHI7k     7
-#> 2           1    wall lTfMCMoosC       1       1      7 oLwfFZnIJi    13
-#> 3           1    wall lTfMCMoosC       1       1      8 ap5ur2Mlen    13
-#> 4           1    wall lTfMCMoosC       1       1      9 eg408jEPuu     7
-#> 5           1    wall lTfMCMoosC       1       1     10 BnuPwFHI7k     7
-#> 6           1    wall lTfMCMoosC       1       2     11 Mo2iYwcFCF    18
-#> 7           1    wall lTfMCMoosC       1       2     12 6xBBITbpve    24
-#> 8           1    wall lTfMCMoosC       1       2     13 XoiyHF6sFo    24
-#> 9           1    wall lTfMCMoosC       1       2     14 YwBPD5KbcS    18
-#> 10          1    wall lTfMCMoosC       1       2     15 Mo2iYwcFCF    18
+#> 1           1    wall lYiqMmNowd       1       1      6 N0faXkjTx7   7.0
+#> 2           1    wall lYiqMmNowd       1       1      7 jEH7AuGK8y  13.0
+#> 3           1    wall lYiqMmNowd       1       1      8 oybjnjolu1  13.0
+#> 4           1    wall lYiqMmNowd       1       1      9 dQUu8AxbGk   7.0
+#> 5           1    wall lYiqMmNowd       1       1     10 N0faXkjTx7   7.0
+#> 6           3    door kVRn2odXIO       1       2     44 3D9eBxTBuX  18.4
+#> 7           3    door kVRn2odXIO       1       2     45 oY15sfoCci  18.6
+#> 8           3    door kVRn2odXIO       1       2     46 EnhsiM4Ms5  18.8
+#> 9           3    door kVRn2odXIO       1       2     47 V8pVJeZujK  18.8
+#> 10          3    door kVRn2odXIO       1       2     48 YpVaixHEZU  18.6
 #> # ... with more rows, and 1 more variables: y_ <dbl>
 ```
 
