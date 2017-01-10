@@ -50,3 +50,5 @@ write_db <- function(x,  dbfile = NULL, layer = NULL,  verbose = TRUE) {
 "%||%" <- function(a, b) {
   if (is.null(a)) b else a
 }
+
+
