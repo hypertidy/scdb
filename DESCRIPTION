@@ -1,8 +1,9 @@
 Package: scdb
-Title: What the Package Does (one line, title case)
+Title: Database Back-End for 'sc`
 Version: 0.0.0.9000
 Authors@R: person("Michael D.","Sumner", role = c("aut", "cre"), email = "mdsumner@gmail.com")
-Description: What the package does (one paragraph).
+Description: Decompose complex objects to generic form and write to a database. This general source can 
+    then be used to re-compose or to build other complex objects, optionally in partial form, on-demand. 
 Depends:
     R (>= 3.3.2)
 License: GPL-3

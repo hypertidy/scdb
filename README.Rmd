@@ -4,6 +4,7 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -14,7 +15,7 @@ knitr::opts_chunk$set(
 
 # scdb
 
-The goal of scdb is to provide a back-end for the sc project. 
+The goal of scdb is to provide a back-end for the `sc` project. 
 
 This is a general common-form data structure for complex hierarchical data. 
 
@@ -29,8 +30,7 @@ devtools::install_github("mdsumner/scdb")
 
 ## Example
 
-This is a basic example which converts a simple features object to a database, then recreates that object
-in a very scaleable, flexible and extensible way. 
+This is a basic example which converts a simple features object to generic form, writes it to a database, then recreates that object from the database. This is done in a very generic and flexible way, and is both scaleable and extensible. 
 
 ```{r example}
 
@@ -47,18 +47,48 @@ library(dplyr)
 
 ```
 
-There are three objects, and each has a long ID `object_`, as well as other metadata. 
+There are three objects, and each has a long ID in the column `object_`, as well as other metadata. 
 
-Using joins we can access the other data in the decomposed tables. 
+Using queries, including joins we can access the other data in the decomposed tables. There is a 
+straightforward chain of IDs between tables for this model, they are `object_`, `branch_`, `vertex_`. This chain can be used for predictable join expansion to access the coordinates for branches or objects. 
 
 ```{r joins}
-big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "branch_vertex")) %>% inner_join(tbl(pdb, "vertex")))
+big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "branch_link_vertex")) %>% inner_join(tbl(pdb, "vertex")))
 big_tab %>% arrange(branch_, order_)
 ```
 
-In a real case we would wrap the chained joins within a  list-column in `obj` or similar trick, and use the database more cleverly to only 
-expand out the data we need for each object. But also note there's  no `collect` statement, `big_tab` is still a promise that the database will do the work only when we really need it to. 
+In a real case we would wrap the chained joins within a  list-column in `obj` or similar trick, and use the database more cleverly to only expand out the data we need for each object. But also note there's  no `collect` statement, `big_tab` is still a promise that the database will do the work only when we really need it to. 
 
-For demonstration, show that we can recompose the hierarchical object ...
+For demonstration, show that we can recompose the hierarchical object. 
 
+Extract a subset of the features, in this case the wall and the roof, but not the door. We don't yet 'collect' these data because we need to keep the live link for efficient extraction. 
 
+```{r}
+(o <- obj %>% filter(feature %in% c("wall", "roof"))) ##%>% collect())
+
+```
+
+Now we need the geometries. 
+
+```{r}
+o %>%  select(object_) %>% dplyr::inner_join(tbl(pdb, "branch"))
+
+```
+
+A simple way is to expand out the entire coordinate table, then process it into the right simple features. 
+
+```{r}
+coords <- o %>%  select(object_) %>% dplyr::inner_join(tbl(pdb, "branch")) %>% 
+  inner_join(tbl(pdb, "branch_link_vertex")) %>% arrange(object_, island_, order_) %>% 
+  select(-ncoords_, 
+         -order_) %>% 
+  inner_join(tbl(pdb, "vertex")) %>% select(-vertex_) %>% 
+  collect()
+
+library(sf)
+rt <- st_sf(collect(o), geometry = st_sfc(lapply(split(coords, coords$object_), function(x) st_multipolygon(lapply(split(x, x$branch_), function(y) lapply(split(y, y$island_), function(b) as.matrix(b[c(seq_len(nrow(b)), 1), c("x_", "y_")])))))))
+
+rt
+
+plot(rt)
+```

@@ -23,19 +23,8 @@ write_db <- function(x,  dbfile = NULL, layer = NULL,  verbose = TRUE) {
   ## decompose to tables
   if (verbose) message("decomposing object")
 
-  ## hack
-  ## TODO use new simple features model
-  tabs <- spbabel::map_table(x)
-
-  ## hack
-  ## remap names, probably just pull map_table/feature_table from spbabel to sc and standardize
-  ## or use classing to avoid the names completely
-  names(tabs) <- c(o = "object", b = "branch", bXv = "branch_vertex", v = "vertex")
-
-  ## hack
-  ## eek not currently droppping the geometry column
-  nr <- unlist(lapply(tabs$o, is.atomic))
-  tabs$object[[names(nr)[!nr]]] <- NULL
+  ## BRANCH model
+  tabs <- sc::BRANCH(x)
 
   pb <- progress::progress_bar$new(total = length(tabs))
   if (verbose) message(sprintf("write tables to database %s", dbfile))
