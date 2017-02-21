@@ -6,8 +6,6 @@
 \alias{write_db.sf}
 \alias{write_db}
 \alias{write_db.sc}
-\alias{write_db}
-\alias{write_db.data.frame}
 \title{Build database from object.}
 \usage{
 write_db(x, src = NULL, ..., verbose = FALSE)
@@ -15,8 +13,6 @@ write_db(x, src = NULL, ..., verbose = FALSE)
 \method{write_db}{sf}(x, src = NULL, ..., verbose = FALSE)
 
 \method{write_db}{sc}(x, src = NULL, ..., verbose = FALSE)
-
-\method{write_db}{data.frame}(x, src = NULL, name, ..., verbose = FALSE)
 }
 \arguments{
 \item{x}{object}
@@ -26,8 +22,6 @@ write_db(x, src = NULL, ..., verbose = FALSE)
 \item{...}{passed to methods}
 
 \item{verbose}{defaults to `FALSE`}
-
-\item{name}{individual table name}
 }
 \value{
 db object

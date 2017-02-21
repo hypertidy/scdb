@@ -4,7 +4,6 @@
 #' 
 #' @param x object
 #' @param src database
-#' @param name individual table name 
 #' @param ... passed to methods
 #' @param verbose defaults to `FALSE`
 #'
@@ -46,8 +45,7 @@ write_db.sc <- function(x, src = NULL,  ..., verbose = FALSE) {
   for (i in seq_along(layers)) write_db(x[[layers[i]]], src, layers[i], ...)
   src
 }
-#' @name write_db
-#' @export
+# @name write_db
 write_db.data.frame <- function(x, src = NULL, name, ..., verbose = FALSE) {
   dplyr::copy_to(src, x, name = name, temporary = FALSE)
 }
