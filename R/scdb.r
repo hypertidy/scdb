@@ -1,54 +1,85 @@
 #' Build database from object.
 #'
-#' Currently only objects supported by `spbabel::map_table` are supported ....
+#' Objects are converted to 'sc::PATH' common form. 
+#' 
 #' @param x object
-#' @param dbfile SQLite file name
-#' @param layer object layer name (defaults to the name of `x`)
-#' @param verbose chatty mode
+#' @param src database
+#' @param name individual table name 
+#' @param ... passed to methods
+#' @param verbose defaults to `FALSE`
+#'
 #' @return db object
 #' @export
 #'
 #' @examples
 #' ## hpoly is an in-built simple features multipolygon layer
+#' library(scsf)
 #' db <- write_db(hpoly)
 #' db
-#' @importFrom spbabel map_table
 #' @importFrom dplyr copy_to src_sqlite
-#' @importFrom progress progress_bar
-write_db <- function(x,  dbfile = NULL, layer = NULL,  verbose = TRUE) {
-  layer <- layer %||%  deparse(substitute(x))
-  dbfile <- dbfile %||%  sprintf("%s.sqlite", tempfile())
-  db <- dplyr::src_sqlite(dbfile, create = TRUE)
+#' @importFrom sc PATH
+write_db <- function(x, src = NULL,  ..., verbose = FALSE) {
+  UseMethod("write_db")
+}
 
-  ## decompose to tables
-  if (verbose) message("decomposing object")
-
-  ## hack
-  ## TODO use new simple features model
-  tabs <- spbabel::map_table(x)
-
-  ## hack
-  ## remap names, probably just pull map_table/feature_table from spbabel to sc and standardize
-  ## or use classing to avoid the names completely
-  names(tabs) <- c(o = "object", b = "branch", bXv = "branch_vertex", v = "vertex")
-
-  ## hack
-  ## eek not currently droppping the geometry column
-  nr <- unlist(lapply(tabs$o, is.atomic))
-  tabs$object[[names(nr)[!nr]]] <- NULL
-
-  pb <- progress::progress_bar$new(total = length(tabs))
-  if (verbose) message(sprintf("write tables to database %s", dbfile))
-  for (i in seq_along(tabs)) {
-    dplyr::copy_to(db, tabs[[i]], name = names(tabs)[i], temporary = FALSE)
-    if (verbose) pb$tick()
+#' @name write_db
+#' @export
+write_db.sf <- function(x, src = NULL,  ..., verbose = FALSE) {
+  write_db(sc::PATH(x), src = src, ..., verbose = verbose)
+}
+#' @name write_db
+#' @export
+write_db.sc <- function(x, src = NULL,  ..., verbose = FALSE) {
+  if (!inherits(x, "PATH") & !inherits(x, "PRIMITIVE")) {
+    if (verbose) message("converting 'x' to a PATH")
+    x <- PATH(x)
   }
-  db
+  layers <- names(x)
+  if (is.null(src)) {
+    dbfile <- sprintf("%s.sqlite", tempfile())
+    message(sprintf("creating temp database %s", dbfile))
+    src <- dplyr::src_sqlite(dbfile, create = TRUE)
+    
+  } else { 
+    if (!inherits(src, "src")) warning("'src' is not a src ...")  
+  }
+  for (i in seq_along(layers)) write_db(x[[layers[i]]], src, layers[i], ...)
+  src
 }
-
-## infix sugar for if (is.null)
-"%||%" <- function(a, b) {
-  if (is.null(a)) b else a
+#' @name write_db
+#' @export
+write_db.data.frame <- function(x, src = NULL, name, ..., verbose = FALSE) {
+  dplyr::copy_to(src, x, name = name, temporary = FALSE)
 }
-
-
+# @importFrom progress progress_bar
+# @importFrom spbabel map_table
+# old_write_db <- function(x,  dbfile = NULL, layer = NULL,  verbose = TRUE) {
+#   layer <- layer %||%  deparse(substitute(x))
+#   dbfile <- dbfile %||%  sprintf("%s.sqlite", tempfile())
+#   db <- dplyr::src_sqlite(dbfile, create = TRUE)
+#   
+#   ## decompose to tables
+#   if (verbose) message("decomposing object")
+#   
+#   ## hack
+#   ## TODO use new simple features model
+#   tabs <- spbabel::map_table(x)
+#   
+#   ## hack
+#   ## remap names, probably just pull map_table/feature_table from spbabel to sc and standardize
+#   ## or use classing to avoid the names completely
+#   names(tabs) <- c(o = "object", b = "branch", bXv = "branch_vertex", v = "vertex")
+#   
+#   ## hack
+#   ## eek not currently droppping the geometry column
+#   nr <- unlist(lapply(tabs$o, is.atomic))
+#   tabs$object[[names(nr)[!nr]]] <- NULL
+#   
+#   pb <- progress::progress_bar$new(total = length(tabs))
+#   if (verbose) message(sprintf("write tables to database %s", dbfile))
+#   for (i in seq_along(tabs)) {
+#     dplyr::copy_to(db, tabs[[i]], name = names(tabs)[i], temporary = FALSE)
+#     if (verbose) pb$tick()
+#   }
+#   db
+# }

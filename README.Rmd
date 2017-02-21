@@ -12,6 +12,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+[![Travis-CI Build Status](https://travis-ci.org/mdsumner/scdb.svg?branch=master)](https://travis-ci.org/mdsumner/scdb)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mdsumner/scdb?branch=master&svg=true)](https://ci.appveyor.com/project/mdsumner/scdb)
+
 # scdb
 
 The goal of scdb is to provide a back-end for the sc project. 
@@ -35,6 +39,7 @@ in a very scaleable, flexible and extensible way.
 ```{r example}
 
 library(scdb)
+library(scsf)
 data(hpoly)
 (pdb <- write_db(hpoly))
 ```
@@ -52,13 +57,14 @@ There are three objects, and each has a long ID `object_`, as well as other meta
 Using joins we can access the other data in the decomposed tables. 
 
 ```{r joins}
-big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "branch_vertex")) %>% inner_join(tbl(pdb, "vertex")))
-big_tab %>% arrange(branch_, order_)
+(p <- tbl(pdb, "vertex") %>% inner_join(tbl(pdb, "path_link_vertex")) %>% inner_join(tbl(pdb, "path"))) 
 ```
 
 In a real case we would wrap the chained joins within a  list-column in `obj` or similar trick, and use the database more cleverly to only 
 expand out the data we need for each object. But also note there's  no `collect` statement, `big_tab` is still a promise that the database will do the work only when we really need it to. 
 
-For demonstration, show that we can recompose the hierarchical object ...
-
-
+```{r recompose}
+library(ggplot2)
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path_, colour = path_)) + 
+  geom_path()
+```

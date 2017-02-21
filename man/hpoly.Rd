@@ -7,4 +7,3 @@
 \description{
 Simple features `sf` object.
 }
-

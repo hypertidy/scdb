@@ -1,5 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Travis-CI Build Status](https://travis-ci.org/mdsumner/scdb.svg?branch=master)](https://travis-ci.org/mdsumner/scdb) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mdsumner/scdb?branch=master&svg=true)](https://ci.appveyor.com/project/mdsumner/scdb)
+
 scdb
 ====
 
@@ -25,12 +27,13 @@ This is a basic example which converts a simple features object to a database, t
 ``` r
 
 library(scdb)
+library(scsf)
+#> Loading required package: sc
 data(hpoly)
 (pdb <- write_db(hpoly))
-#> decomposing object
-#> write tables to database C:\Users\mdsumner\AppData\Local\Temp\Rtmpi2OIqI\file39ec3c322a12.sqlite
-#> src:  sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\Rtmpi2OIqI\file39ec3c322a12.sqlite]
-#> tbls: branch, branch_vertex, object, sqlite_stat1, vertex
+#> creating temp database C:\Users\michae_sum\AppData\Local\Temp\RtmpkzjybV\file11ec46162120.sqlite
+#> src:  sqlite 3.11.1 [C:\Users\michae_sum\AppData\Local\Temp\RtmpkzjybV\file11ec46162120.sqlite]
+#> tbls: object, path, path_link_vertex, sqlite_stat1, vertex
 ```
 
 Now explore the objects available in the database.
@@ -47,13 +50,13 @@ library(dplyr)
 #>     intersect, setdiff, setequal, union
 (obj <- tbl(pdb, "object"))
 #> Source:   query [?? x 3]
-#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\Rtmpi2OIqI\file39ec3c322a12.sqlite]
+#> Database: sqlite 3.11.1 [C:\Users\michae_sum\AppData\Local\Temp\RtmpkzjybV\file11ec46162120.sqlite]
 #> 
-#>   rownumber_ feature    object_
-#>        <int>   <chr>      <chr>
-#> 1          1    wall juLJdICtNx
-#> 2          2    roof zRwPdLUmlu
-#> 3          3    door QHiXzxc2p7
+#>   rownumber_ feature  object_
+#>        <int>   <chr>    <chr>
+#> 1          1    wall d1940a76
+#> 2          2    roof 30ce090b
+#> 3          3    door 3c41636c
 ```
 
 There are three objects, and each has a long ID `object_`, as well as other metadata.
@@ -61,29 +64,33 @@ There are three objects, and each has a long ID `object_`, as well as other meta
 Using joins we can access the other data in the decomposed tables.
 
 ``` r
-big_tab <- (obj %>% inner_join(tbl(pdb, "branch")) %>% inner_join(tbl(pdb, "branch_vertex")) %>% inner_join(tbl(pdb, "vertex")))
-#> Joining, by = "object_"
-#> Joining, by = "branch_"
+(p <- tbl(pdb, "vertex") %>% inner_join(tbl(pdb, "path_link_vertex")) %>% inner_join(tbl(pdb, "path"))) 
 #> Joining, by = "vertex_"
-big_tab %>% arrange(branch_, order_)
-#> Source:   query [?? x 9]
-#> Database: sqlite 3.11.1 [C:\Users\mdsumner\AppData\Local\Temp\Rtmpi2OIqI\file39ec3c322a12.sqlite]
+#> Joining, by = "path_"
+#> Source:   query [?? x 7]
+#> Database: sqlite 3.11.1 [C:\Users\michae_sum\AppData\Local\Temp\RtmpkzjybV\file11ec46162120.sqlite]
 #> 
-#>    rownumber_ feature    object_ island_ branch_ order_    vertex_    x_
-#>         <int>   <chr>      <chr>   <int>   <int>  <int>      <chr> <dbl>
-#> 1           1    wall juLJdICtNx       1       1     16 oFOCWdGfrg    31
-#> 2           1    wall juLJdICtNx       1       1     17 7DEPlYrLgR    37
-#> 3           1    wall juLJdICtNx       1       1     18 yXtap7cNJw    37
-#> 4           1    wall juLJdICtNx       1       1     19 rVd1aiUiX2    31
-#> 5           1    wall juLJdICtNx       1       1     20 oFOCWdGfrg    31
-#> 6           1    wall juLJdICtNx       1       2      1 HG5ZLPYxHF     0
-#> 7           1    wall juLJdICtNx       2       2      1 HG5ZLPYxHF     0
-#> 8           1    wall juLJdICtNx       3       2      1 HG5ZLPYxHF     0
-#> 9           1    wall juLJdICtNx       1       2      2 R6VYSU5d0w     0
-#> 10          1    wall juLJdICtNx       2       2      2 R6VYSU5d0w     0
-#> # ... with more rows, and 1 more variables: y_ <dbl>
+#>       x_    y_  vertex_    path_ island_ ncoords_  object_
+#>    <dbl> <dbl>    <chr>    <chr>   <chr>    <int>    <chr>
+#> 1      0     0 0d8dc0eb a28b36c6       1        5 d1940a76
+#> 2      0     0 0d8dc0eb a28b36c6       1        5 d1940a76
+#> 3      0    19 19617ffa a28b36c6       1        5 d1940a76
+#> 4      0    19 19617ffa 9ca7a769       1        6 30ce090b
+#> 5      0    19 19617ffa 9ca7a769       1        6 30ce090b
+#> 6     46    19 9ca5e660 a28b36c6       1        5 d1940a76
+#> 7     46    19 9ca5e660 9ca7a769       1        6 30ce090b
+#> 8     46     0 c12b9287 a28b36c6       1        5 d1940a76
+#> 9      7     6 2afca481 fa7476fb       1        5 d1940a76
+#> 10     7     6 2afca481 fa7476fb       1        5 d1940a76
+#> # ... with more rows
 ```
 
 In a real case we would wrap the chained joins within a list-column in `obj` or similar trick, and use the database more cleverly to only expand out the data we need for each object. But also note there's no `collect` statement, `big_tab` is still a promise that the database will do the work only when we really need it to.
 
-For demonstration, show that we can recompose the hierarchical object ...
+``` r
+library(ggplot2)
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path_, colour = path_)) + 
+  geom_path()
+```
+
+![](README-recompose-1.png)

@@ -2,28 +2,42 @@
 % Please edit documentation in R/scdb.r
 \name{write_db}
 \alias{write_db}
+\alias{write_db}
+\alias{write_db.sf}
+\alias{write_db}
+\alias{write_db.sc}
+\alias{write_db}
+\alias{write_db.data.frame}
 \title{Build database from object.}
 \usage{
-write_db(x, dbfile = NULL, layer = NULL, verbose = TRUE)
+write_db(x, src = NULL, ..., verbose = FALSE)
+
+\method{write_db}{sf}(x, src = NULL, ..., verbose = FALSE)
+
+\method{write_db}{sc}(x, src = NULL, ..., verbose = FALSE)
+
+\method{write_db}{data.frame}(x, src = NULL, name, ..., verbose = FALSE)
 }
 \arguments{
 \item{x}{object}
 
-\item{dbfile}{SQLite file name}
+\item{src}{database}
 
-\item{layer}{object layer name (defaults to the name of `x`)}
+\item{...}{passed to methods}
 
-\item{verbose}{chatty mode}
+\item{verbose}{defaults to `FALSE`}
+
+\item{name}{individual table name}
 }
 \value{
 db object
 }
 \description{
-Currently only objects supported by `spbabel::map_table` are supported ....
+Objects are converted to 'sc::PATH' common form.
 }
 \examples{
 ## hpoly is an in-built simple features multipolygon layer
+library(scsf)
 db <- write_db(hpoly)
 db
 }
-
