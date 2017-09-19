@@ -1,15 +1,15 @@
 Package: scdb
 Title: Database Backend for Common Form Data
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: person("Michael D.","Sumner", role = c("aut", "cre"), email = "mdsumner@gmail.com")
-Description: Creates a database backend from `sc` data.
+Description: Creates a database backend from `silicate` data.
 Depends:
     R (>= 3.3.2)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Imports: dplyr, sc
+Imports: dplyr, silicate
 Suggests: scsf, testthat,
-    covr
-Remotes: mdsumner/scsf, mdsumner/sc
+    covr, dbplyr, RSQLite
+Remotes: hypertidy/silicate

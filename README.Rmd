@@ -13,9 +13,9 @@ knitr::opts_chunk$set(
 ```
 
 
-[![Travis-CI Build Status](https://travis-ci.org/mdsumner/scdb.svg?branch=master)](https://travis-ci.org/mdsumner/scdb)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mdsumner/scdb?branch=master&svg=true)](https://ci.appveyor.com/project/mdsumner/scdb)
-[![Coverage Status](https://img.shields.io/codecov/c/github/mdsumner/scdb/master.svg)](https://codecov.io/github/mdsumner/scdb?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/hypertidy/scdb.svg?branch=master)](https://travis-ci.org/hypertidy/scdb)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/hypertidy/scdb?branch=master&svg=true)](https://ci.appveyor.com/project/hypertidy/scdb)
+[![Coverage Status](https://img.shields.io/codecov/c/github/hypertidy/scdb/master.svg)](https://codecov.io/github/hypertidy/scdb?branch=master)
 
 
 # scdb
@@ -30,7 +30,7 @@ You can install scdb from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("mdsumner/scdb")
+devtools::install_github("hypertidy/scdb")
 ```
 
 ## Example
@@ -41,7 +41,7 @@ in a very scaleable, flexible and extensible way.
 ```{r example}
 
 library(scdb)
-library(scsf)
+
 data(hpoly)
 (pdb <- write_db(hpoly))
 ```
@@ -67,9 +67,16 @@ expand out the data we need for each object. But also note there's  no `collect`
 
 ```{r recompose}
 library(ggplot2)
-collect(p) %>% ggplot(aes(x = x_, y = y_, group = path_, colour = path_)) + 
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path, colour = path)) + 
   geom_path()
+library(ggpolypath)
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path, colour = path)) + 
+  ggpolypath::geom_polypath()
+
 ```
 
+WIP
+
+A future version will provide methods for sc_coord, sc_path, PATH and PRIMITIVE that can work more transparently from a database. In particular this will allow building a completely arbitrary data structure of any size in a database, that can then be streamed into R for analysis or  visualization in any of the graphics systems. 
 
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.

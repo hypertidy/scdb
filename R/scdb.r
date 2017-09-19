@@ -1,6 +1,6 @@
 #' Build database from object.
 #'
-#' Objects are converted to 'sc::PATH' common form. 
+#' Objects are converted to 'silicate::PATH' common form. 
 #' 
 #' @param x object
 #' @param src database
@@ -12,11 +12,11 @@
 #'
 #' @examples
 #' ## hpoly is an in-built simple features multipolygon layer
-#' library(scsf)
+#' library(silicate)
 #' db <- write_db(hpoly)
 #' db
 #' @importFrom dplyr copy_to src_sqlite
-#' @importFrom sc PATH
+#' @importFrom silicate PATH sc_path
 write_db <- function(x, src = NULL,  ..., verbose = FALSE) {
   UseMethod("write_db")
 }
@@ -24,7 +24,7 @@ write_db <- function(x, src = NULL,  ..., verbose = FALSE) {
 #' @name write_db
 #' @export
 write_db.sf <- function(x, src = NULL,  ..., verbose = FALSE) {
-  write_db(sc::PATH(x), src = src, ..., verbose = verbose)
+  write_db(silicate::PATH(x), src = src, ..., verbose = verbose)
 }
 #' @name write_db
 #' @export

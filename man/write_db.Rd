@@ -27,11 +27,11 @@ write_db(x, src = NULL, ..., verbose = FALSE)
 db object
 }
 \description{
-Objects are converted to 'sc::PATH' common form.
+Objects are converted to 'silicate::PATH' common form.
 }
 \examples{
 ## hpoly is an in-built simple features multipolygon layer
-library(scsf)
+library(silicate)
 db <- write_db(hpoly)
 db
 }
