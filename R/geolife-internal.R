@@ -59,7 +59,17 @@ read_geofile <- function(x, ...) {
     dplyr::transmute(lon, lat, utc = as.POSIXct(strptime(paste(date, time), "%Y-%m-%d %H:%M:%S"), tz = "UTC"), 
                      z = altitude_ft * 0.3048, id = gsub("\\.plt$", "", basename(x)))
 }
-
+project_extent <- function(x, family = "laea") {
+  UseMethod("project_extent")
+}
+project_extent.Spatial <- function(x, family = "laea") {
+  project_extent(coordinates(x))
+}
+project_extent.default <- function(x, family = "laea") {
+  mxy <- c(mean(x[,1]), mean(x[,2]))
+  proj <- sprintf("+proj=%s +lon_0=%f +lat_0=%f +datum=WGS84", family, mxy[1], mxy[2])
+  raster::projectExtent(raster::raster(raster::extent(x), crs = "+init=epsg:4326"), proj)
+}
 as_trip <- function(x) {
   if (!requireNamespace("trip")) stop("as_trip needs the trip package installed, use 'install.packages(\"trip\")'")
   trip::trip(sp::SpatialPointsDataFrame(sp::SpatialPoints(cbind(x$lon, x$lat), proj4string = sp::CRS("+init=epsg:4326")),
@@ -114,3 +124,18 @@ extract_position <- function(x, utc) {
 
 # 5. Visualizing trajectories in desktop GIS
 ## tcltck, mapview, etc. 
+
+# ## here a bit of fun to produce a globe of envelopes
+# read <- function(.x) read_geofile(.x)[c("lon", "lat")] %>% as.matrix() %>% project_extent()
+# system.time(l <- purrr::map(gfiles$fullname, purrr::safely(read)))
+# o <- vector("list", length(l))
+# ok <- logical(length(l))
+# for (i in seq_along(l)) {
+#    isok <- !is.null(l[[i]]$result)
+#    ok[i] <- isok
+#    o[[i]] <- anglr::globe(silicate::SC(spex::spex(l[[i]]$result)))
+# }
+# 
+# library(anglr)
+# for (i in seq_along(o)) plot3d(o[[i]], add = i > 1)
+# rgl::rglwidget()
