@@ -8,3 +8,5 @@
 ^CONDUCT\.md$
 ^codecov\.yml$
 ^docs$
+^inst/geolife-bench/Geolife_Trajectories_1.3.zip$
+^inst/geolife-bench/Geolife\ Trajectories\ 1.3$

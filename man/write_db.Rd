@@ -2,10 +2,10 @@
 % Please edit documentation in R/scdb.r
 \name{write_db}
 \alias{write_db}
-\alias{write_db}
 \alias{write_db.sf}
-\alias{write_db}
 \alias{write_db.sc}
+\alias{write_db.list}
+\alias{write_db.data.frame}
 \title{Build database from object.}
 \usage{
 write_db(x, src = NULL, ..., verbose = FALSE)
@@ -13,6 +13,11 @@ write_db(x, src = NULL, ..., verbose = FALSE)
 \method{write_db}{sf}(x, src = NULL, ..., verbose = FALSE)
 
 \method{write_db}{sc}(x, src = NULL, ..., verbose = FALSE)
+
+\method{write_db}{list}(x, src = NULL, name, ..., verbose = FALSE)
+
+\method{write_db}{data.frame}(x, src = NULL, name, ...,
+  verbose = FALSE)
 }
 \arguments{
 \item{x}{object}

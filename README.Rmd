@@ -67,10 +67,10 @@ expand out the data we need for each object. But also note there's  no `collect`
 
 ```{r recompose}
 library(ggplot2)
-collect(p) %>% ggplot(aes(x = x_, y = y_, group = path, colour = path)) + 
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path_, colour = path_)) + 
   geom_path()
 library(ggpolypath)
-collect(p) %>% ggplot(aes(x = x_, y = y_, group = path, colour = path)) + 
+collect(p) %>% ggplot(aes(x = x_, y = y_, group = path_, colour = path_)) + 
   ggpolypath::geom_polypath()
 
 ```
