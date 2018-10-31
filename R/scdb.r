@@ -29,11 +29,6 @@ write_db.sf <- function(x, src = NULL,  ..., verbose = FALSE) {
 #' @name write_db
 #' @export
 write_db.sc <- function(x, src = NULL,  ..., verbose = FALSE) {
-  if (!inherits(x, "PATH") & !inherits(x, "PRIMITIVE")) {
-    if (verbose) message("converting 'x' to a PATH")
-    x <- PATH(x)
-  }
-  layers <- names(x)
   if (is.null(src)) {
     dbfile <- sprintf("%s.sqlite", tempfile())
     message(sprintf("creating temp database %s", dbfile))
@@ -42,10 +37,15 @@ write_db.sc <- function(x, src = NULL,  ..., verbose = FALSE) {
   } else { 
     if (!inherits(src, "src")) warning("'src' is not a src ...")  
   }
-  for (i in seq_along(layers)) write_db(x[[layers[i]]], src, layers[i], ...)
+  write_db(unclass(x), src = src, ..., verbose = verbose)
   src
 }
-# @name write_db
+#' @name write_db
+write_db.list <- function(x, src = NULL, name, ..., verbose = FALSE) {
+  layers <- names(x)
+  for (i in seq_along(layers)) write_db(x[[layers[i]]], src, layers[i], ...)
+}
+#' @name write_db
 write_db.data.frame <- function(x, src = NULL, name, ..., verbose = FALSE) {
   dplyr::copy_to(src, x, name = name, temporary = FALSE)
 }
