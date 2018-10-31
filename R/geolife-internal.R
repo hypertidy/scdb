@@ -41,6 +41,16 @@
 # 39.906631,116.385564,0,492,40097.5864583333,2009-10-11,14:04:30
 # 39.906554,116.385625,0,492,40097.5865162037,2009-10-11,14:04:35
 #' @importFrom readr col_double col_integer col_character
+#' @examples 
+#' tr <- read_geofile(gfiles$fullname[1]) %>% as_trip()
+#' wm <- which.max(gfiles$size)
+#' 
+#' ## 4 seconds
+#' system.time(tr <- read_geofile(gfiles$fullname[wm]) %>% as_trip())
+#' system.time(total_length(tr))
+#' system.time(total_duration(tr))
+#' ## fast
+#' system.time(extract_position(tr, mean(c(time_end(tr), time_start(tr)))))
 read_geofile <- function(x, ...) {
   readr::read_csv(x, col_names = c("lat", "lon", "allzero", "altitude_ft", "ms_date", "date", "time"), 
                   col_types = list(col_double(), col_double(), col_integer(), col_double(), col_double(), 
@@ -56,3 +66,51 @@ as_trip <- function(x) {
                                         data.frame(utc = x$utc, z = x$z, id = x$id, stringsAsFactors = FALSE)), 
              c("utc", "id"))
 }
+
+stop_not_trip <- function(x) {
+  if (!inherits(x, "trip")) stop("not a trip")
+  invisible(NULL)
+}
+## 1. Computing total trajectory duration and length per tracker
+## in hours
+total_duration <- function(x) {
+  stop_not_trip(x)
+  dif <- diff(range(x[[trip::getTORnames(x)[1]]]))
+  units(dif) <- "hours"
+  dif
+}
+time_start <- function(x) {
+  stop_not_trip(x)
+  min(x[[trip::getTORnames(x)[1]]])
+}
+time_end <- function(x) {
+  stop_not_trip(x)
+  max(x[[trip::getTORnames(x)[1]]])
+}
+
+## in km
+total_length <- function(x) {
+  stop_not_trip(x)
+  sum(trip::trackDistance(x))
+}
+
+#### this is where we need the full db backended
+
+## 2. Finding trajectories that occurred during a certain time frame (temporal filter)
+
+## 3. Finding trajectories that originated in a certain spatial region (spatial filter)
+
+
+## 4. Extracting positions at a certain point in time
+## if longlat ok
+extract_position <- function(x, utc) {
+  if (!inherits(utc, "POSIXct")) utc <- as.POSIXct(utc, tz = "UTC")
+  xy <- coordinates(x)
+  dt <- x[[trip::getTORnames(x)[1]]]
+  ax <- approxfun(dt, xy[,1])
+  ay <- approxfun(dt, xy[,2])
+  cbind(ax(utc), ay(utc))
+}
+
+# 5. Visualizing trajectories in desktop GIS
+## tcltck, mapview, etc. 

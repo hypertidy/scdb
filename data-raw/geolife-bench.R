@@ -11,5 +11,5 @@ curl::curl_download(geolife, gfile)
 unzip(gfile, exdir = "inst/geolife-bench")
 
 gfiles <- tibble::tibble(fullname = fs::dir_ls("inst/geolife-bench/Geolife Trajectories 1.3", recursive = TRUE, type = "file"))
-
+gfiles$size <- file.info(gfiles$fullname)$size
 usethis::use_data(gfiles, internal = TRUE)
